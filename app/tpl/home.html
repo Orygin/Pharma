@@ -1,0 +1,13 @@
+<div class="title">Pharma</div>
+<div ng-hide="connected">
+	<div class="connexionBox">
+		<form>
+			<input type="text" class="form-control" ng-model="name" value="" autofocus\><br>
+			<input type="password" ng-model="password" class="form-control"  value=""\><br>
+			<input 	type="submit" 
+					class="btn btn-primary btn-sm"
+					value="Connect" 
+					ng-click="connect(name, password)"/>
+		</form>
+	</div>
+</div>

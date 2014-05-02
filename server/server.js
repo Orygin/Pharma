@@ -1,3 +1,4 @@
+'use strict';
 var express = require('express'),
 	bodyParser = require('body-parser'),
 	compress = require('compression')(),
@@ -5,7 +6,7 @@ var express = require('express'),
 	session = require('express-session'),
 	MongoClient = require('mongodb').MongoClient,
 	mongoStore = require('connect-mongo')(express),
-	dbm = {},
+	dbm = require('./dbManager'),
 	db = {};
 
 var app = express();
@@ -13,6 +14,7 @@ var app = express();
 MongoClient.connect("mongodb://localhost:27017/pharma", function(err, d) {
 	if(!err){
 		db = d;
+		dbm = new dbm(db);
 		startServer();
 	}
 	else
@@ -33,10 +35,10 @@ function getNextSequence(name) {
 function accessRights (lvl) {
 	return function (req, res, next) {
 		if(req.session.isConnected && req.session.rank >= lvl)
-			next();
+			return next();
 		else
-			res.send(401);
-	}
+			return res.send(401);
+	};
 }
 function startServer () {
 	// Serve static files
@@ -53,8 +55,9 @@ function startServer () {
 
 
 	app.get('/api/home', function(req, res){
+		console.dir(req.session);
 		if(req.session.isConnected)
-			res.send(200, req.session.accountInfo);
+			dbm.getUser({_id: req.session.userid}, function(err, items) { res.send(200, items[0]) });
 		else
 			res.send(401);
 	});
@@ -66,7 +69,7 @@ function startServer () {
 		var name = req.body.name,
 			password = req.body.password;
 
-		db.collection('users').find({name:name, password:password}).toArray(function (err, items) {
+		dbm.getUser({name:name, password:password}, function (err, items) {
 			if(!err && items.length == 1){
 				var user = items[0];
 				req.session.userid = user._id;
@@ -79,18 +82,21 @@ function startServer () {
 				res.send(401);
 		});
 	});
+	app.get('/api/destroySession', function(req, res) {
+		req.session.destroy();
+		res.send(401);
+	});
 	app.route('/api/listeCours')
 		.all(accessRights(0))
 		.get(function(req, res) {
 			var userrank = req.session.rank;
-			db.collection('cours').find({rank: {$gte: userrank}}).toArray(function(err, items) {
+			dbm.getCours(userrank, function(err, items) {
 				if(!err)
 					res.send(200, items);
 				else
 					res.send(500);
-			};)
+			});
 		});
-
 
 	app.listen(80);
 	console.log('Listening on port 80');

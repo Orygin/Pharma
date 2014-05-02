@@ -1,4 +1,3 @@
-<div class="title">Pharma</div>
 <div ng-hide="connected">
 	<div class="connexionBox">
 		<form>
@@ -11,3 +10,8 @@
 		</form>
 	</div>
 </div>
+<div ng-show="connected">
+	<a href="#/listeCours">Liste des cours</a>
+</div>
+<!-- Force title to be huge on the home page -->
+<style type="text/css">.title{ font-size: 89px; }</style>

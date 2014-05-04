@@ -1,0 +1,10 @@
+<form novalidate role="form">
+    Nom: <input type="text" ng-model="cour.name" /><br />
+    Description: <input type="text" ng-model="cour.content" /><br />
+    Année: <select class="form-control" ng-model="cour.rank" integer>
+	  <option value="0" selected>5</option>
+	  <option value="1">6</option>
+	  <option value="2">7</option>
+	</select><br />
+    <button ng-click="send(cour)" class="btn btn-primary">Envoyer</button>
+  </form>

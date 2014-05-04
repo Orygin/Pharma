@@ -21,17 +21,6 @@ MongoClient.connect("mongodb://localhost:27017/pharma", function(err, d) {
 		console.log('WARNING : could not connect to database');
 });
 
-function getNextSequence(name) {
-   var ret = db.counters.findAndModify(
-          {
-            query: { _id: name },
-            update: { $inc: { count: 1 } },
-            new: true
-          }
-   );
-
-   return ret.seq;
-}
 function accessRights (lvl) {
 	return function (req, res, next) {
 		if(req.session.isConnected && req.session.rank >= lvl)
@@ -55,7 +44,6 @@ function startServer () {
 
 
 	app.get('/api/home', function(req, res){
-		console.dir(req.session);
 		if(req.session.isConnected)
 			dbm.getUser({_id: req.session.userid}, function(err, items) { res.send(200, items[0]) });
 		else
@@ -94,9 +82,56 @@ function startServer () {
 				if(!err)
 					res.send(200, items);
 				else
-					res.send(500);
+					res.send(500, err);
 			});
 		});
+	app.route('/api/addCours')
+		.all(accessRights(3))
+		.post(function(req, res) {
+			if(req.body.name === undefined && req.body.content === undefined && req.body.rank === undefined)
+				return res.send(400);
+
+			dbm.insertSimple('cours', {
+					name: req.body.name, 
+					content: req.body.content,
+					rank: req.body.rank
+				}, function(err, result) {
+					if(err)
+						res.send(500, err);
+					else
+						res.send(200);
+				});
+		});
+		app.route('/api/getCours/:id')
+			.all(accessRights(0))
+			.get(function(req, res) {
+				dbm.getCour(req.session.rank, req.params.id, function(err, items) {
+					if(err)
+						res.send(500, err);
+					else
+						res.send(200, items[0]);
+				});
+			});
+		app.route('/api/editCours/:id')
+			.all(accessRights(3))
+			.post(function(req, res) {
+				dbm.editCours(req.body, function(err) {
+					if(err)
+						res.send(500, err);
+					else
+						res.send(200);
+				});
+			});
+		app.route('/api/removeCours/:id')
+			.all(accessRights(3))
+			.get(function(req, res) {
+				dbm.removeCour(+req.params.id, function(err, nbr) {
+					if(err)
+						res.send(500, err);
+					else
+						res.send(200);
+				})
+			});
 
 	app.listen(80);
 	console.log('Listening on port 80');

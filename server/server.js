@@ -85,7 +85,7 @@ function startServer () {
 					res.send(500, err);
 			});
 		});
-	app.route('/api/addCours')
+	app.route('/api/addCour')
 		.all(accessRights(3))
 		.post(function(req, res) {
 			if(req.body.name === undefined && req.body.content === undefined && req.body.rank === undefined)
@@ -102,36 +102,95 @@ function startServer () {
 						res.send(200);
 				});
 		});
-		app.route('/api/getCours/:id')
-			.all(accessRights(0))
-			.get(function(req, res) {
-				dbm.getCour(req.session.rank, req.params.id, function(err, items) {
-					if(err)
-						res.send(500, err);
-					else
-						res.send(200, items[0]);
-				});
+	app.route('/api/getCour/:id')
+		.all(accessRights(0))
+		.get(function(req, res) {
+			dbm.getCour(req.session.rank, req.params.id, function(err, items) {
+				if(err)
+					res.send(500, err);
+				else
+					res.send(200, items[0]);
 			});
-		app.route('/api/editCours/:id')
-			.all(accessRights(3))
-			.post(function(req, res) {
-				dbm.editCours(req.body, function(err) {
+		});
+	app.route('/api/editCour/:id')
+		.all(accessRights(3))
+		.post(function(req, res) {
+			dbm.editCour(req.body, function(err) {
+				if(err)
+					res.send(500, err);
+				else
+					res.send(200);
+			});
+		});
+	app.route('/api/removeCour/:id')
+		.all(accessRights(3))
+		.get(function(req, res) {
+			dbm.removeCour(+req.params.id, function(err, nbr) {
+				if(err)
+					res.send(500, err);
+				else
+					res.send(200);
+			})
+		});
+
+	app.route('/api/listeChapitres/:coursId')
+		.all(accessRights(0))
+		.get(function(req, res) {
+			var coursId = req.params.coursId;
+			dbm.getChapitres(coursId, function(err, items) {
+				if(!err)
+					res.send(200, items);
+				else
+					res.send(500, err);
+			});
+		});
+	app.route('/api/addChapitre/:coursId')
+		.all(accessRights(3))
+		.post(function(req, res) {
+			if(req.body.name === undefined && req.body.content === undefined && req.body.rank === undefined)
+				return res.send(400);
+
+			dbm.insertSimple('chapitres', {
+					name: req.body.name, 
+					content: req.body.content,
+					coursId: req.params.coursId
+				}, function(err, result) {
 					if(err)
 						res.send(500, err);
 					else
 						res.send(200);
 				});
+		});
+	app.route('/api/getChapitre/:id')
+		.all(accessRights(0))
+		.get(function(req, res) {
+			dbm.getChapitre(+req.params.id, function(err, items) {
+				if(err)
+					res.send(500, err);
+				else
+					res.send(200, items[0]);
 			});
-		app.route('/api/removeCours/:id')
-			.all(accessRights(3))
-			.get(function(req, res) {
-				dbm.removeCour(+req.params.id, function(err, nbr) {
-					if(err)
-						res.send(500, err);
-					else
-						res.send(200);
-				})
+		});
+	app.route('/api/editChapitre/:id')
+		.all(accessRights(3))
+		.post(function(req, res) {
+			dbm.editChapitre(req.body, function(err) {
+				if(err)
+					res.send(500, err);
+				else
+					res.send(200);
 			});
+		});
+	app.route('/api/removeChapitre/:id')
+		.all(accessRights(3))
+		.get(function(req, res) {
+			dbm.removeChapitre(+req.params.id, function(err, nbr) {
+				if(err)
+					res.send(500, err);
+				else
+					res.send(200);
+			})
+		});
 
 	app.listen(80);
 	console.log('Listening on port 80');

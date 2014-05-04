@@ -1,8 +1,8 @@
-<a ng-show="userInfo.rank >= 4" href="/#/addCours">Ajouter un cours</a>
+<a ng-show="userInfo.rank >= 3" href="/#/addCour">Ajouter un cours</a>
 <div ng-repeat="cour in cours">
 	<a ng-href="/#/listeChapitres/{{cour._id}}">{{cour.name}}</a><br>
 	{{cour.content}}<br>
-	<div ng-show="userInfo.rank >= 4">
-		<a ng-href="/#/editCours/{{cour._id}}">editer</a> - <a ng-click="remove(cour._id)">supprimer</a>
+	<div ng-show="userInfo.rank >= 3">
+		<a ng-href="/#/editCour/{{cour._id}}">editer</a> - <a ng-click="remove(cour._id)">supprimer</a>
 	</div>
 </div>

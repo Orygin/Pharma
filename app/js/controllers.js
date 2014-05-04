@@ -92,7 +92,7 @@ angular.module('App.controllers', [])
 		$scope.cours = data;
 	}).error($scope.isError);
 	$scope.remove = function(id) {
-		$http.get('api/removeCours/' + id)
+		$http.get('api/removeCour/' + id)
 			.success(function() {
 				for (var i = $scope.cours.length - 1; i >= 0; i--) {
 					if($scope.cours[i]._id == id){
@@ -102,20 +102,53 @@ angular.module('App.controllers', [])
 			}).error($scope.isError);
 	};
 }])
-.controller('addCoursCtrl', ['$scope', '$location', '$http', function($scope, $location, $http){
+.controller('addCourCtrl', ['$scope', '$location', '$http', function($scope, $location, $http){
 	$scope.send = function(cour) {
-		$http.post('api/addCours', JSON.stringify(cour)).success(function() {
+		$http.post('api/addCour', cour).success(function() {
 			$location.path('/listeCours');
 		}).error($scope.isError);
 	};
 }])
-.controller('editCoursCtrl', ['$scope', '$http', '$location', '$routeParams', function($scope, $http, $location, $routeParams){
+.controller('editCourCtrl', ['$scope', '$http', '$location', '$routeParams', function($scope, $http, $location, $routeParams){
 	$http.get('api/getCours/' + $routeParams.id).success(function(data) {
 		$scope.cour = data;
 	}).error($scope.isError);
 	$scope.send = function(cour) {
-		$http.post('api/editCours/' + cour._id, cour).success(function() {
+		$http.post('api/editCour/' + cour._id, cour).success(function() {
 			$location.path('/listeCours');
+		}).error($scope.isError);
+	};
+}])
+.controller('listeChapitresCtrl', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams){
+	$scope.coursId = $routeParams.id;
+	$http.get('api/listeChapitres/' + $scope.coursId).success(function(data) {
+		$scope.chapitres = data;
+	}).error($scope.isError);
+	$scope.remove = function(id) {
+		$http.get('api/removeChapitre/' + id)
+			.success(function() {
+				for (var i = $scope.chapitres.length - 1; i >= 0; i--) {
+					if($scope.chapitres[i]._id == id){
+						$scope.chapitres.splice(i, 1);
+					}
+				};
+			}).error($scope.isError);
+	};
+}])
+.controller('addChapitreCtrl', ['$scope', '$location', '$http', '$routeParams', function($scope, $location, $http, $routeParams){
+	$scope.send = function(chapitre) {
+		$http.post('api/addChapitre/' + $routeParams.id, chapitre).success(function() {
+			$location.path('/listeChapitres/' + chapitre.coursId);
+		}).error($scope.isError);
+	};
+}])
+.controller('editChapitreCtrl', ['$scope', '$http', '$location', '$routeParams', function($scope, $http, $location, $routeParams){
+	$http.get('api/getChapitre/' + $routeParams.id).success(function(data) {
+		$scope.chapitre = data;
+	}).error($scope.isError);
+	$scope.send = function(chapitre) {
+		$http.post('api/editChapitre/' + chapitre._id, chapitre).success(function() {
+			$location.path('/listeChapitres/' + chapitre.coursId);
 		}).error($scope.isError);
 	};
 }]);

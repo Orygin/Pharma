@@ -11,6 +11,7 @@
     "angular-loader": "1.2.x",
     "angular-mocks": "~1.2.15",
     "bootstrap": "3.1.1",
-    "angular-bootstrap": "0.10.0"
+    "angular-bootstrap": "0.10.0",
+    "angular-markdown-directive": "0.3.0"
   }
 }

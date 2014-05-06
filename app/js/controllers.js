@@ -110,7 +110,7 @@ angular.module('App.controllers', [])
 	};
 }])
 .controller('editCourCtrl', ['$scope', '$http', '$location', '$routeParams', function($scope, $http, $location, $routeParams){
-	$http.get('api/getCours/' + $routeParams.id).success(function(data) {
+	$http.get('api/getCour/' + $routeParams.id).success(function(data) {
 		$scope.cour = data;
 	}).error($scope.isError);
 	$scope.send = function(cour) {
@@ -124,6 +124,9 @@ angular.module('App.controllers', [])
 	$http.get('api/listeChapitres/' + $scope.coursId).success(function(data) {
 		$scope.chapitres = data;
 	}).error($scope.isError);
+	$http.get('api/getCour/' + $routeParams.id).success(function(data) {
+		$scope.cour = data;
+	}).error($scope.isError);
 	$scope.remove = function(id) {
 		$http.get('api/removeChapitre/' + id)
 			.success(function() {
@@ -136,6 +139,8 @@ angular.module('App.controllers', [])
 	};
 }])
 .controller('addChapitreCtrl', ['$scope', '$location', '$http', '$routeParams', function($scope, $location, $http, $routeParams){
+	$scope.chapitre = {};
+	$scope.chapitre.coursId = $routeParams.id;
 	$scope.send = function(chapitre) {
 		$http.post('api/addChapitre/' + $routeParams.id, chapitre).success(function() {
 			$location.path('/listeChapitres/' + chapitre.coursId);
@@ -151,4 +156,13 @@ angular.module('App.controllers', [])
 			$location.path('/listeChapitres/' + chapitre.coursId);
 		}).error($scope.isError);
 	};
+}])
+.controller('viewChapitreCtrl', ['$scope', '$http', '$location', '$routeParams', function($scope, $http, $location, $routeParams){
+	$http.get('api/getChapitre/' + $routeParams.id).success(function(data) {
+		$scope.chapitre = data;
+
+		$http.get('api/getCour/' + data.coursId).success(function(data) {
+			$scope.cour = data;
+		}).error($scope.isError);
+	}).error($scope.isError);
 }]);

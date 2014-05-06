@@ -26,20 +26,33 @@ module.exports = function (db) {
 	};
 	this.removeCour = function(id, cb) {
 		db.collection('cours').remove({_id: id}, {w:1}, cb);
+		var cid = id + "";
+		db.collection('chapitres').remove({coursId: cid}, {w:1}, cb);
 	};
 	this.editCour = function(cours, cb) {
 		db.collection('cours').update({_id: cours._id}, {$set: cours}, {w: 1}, cb);
 	};
+	this.addCour = function(cours, cb) {
+		cours.chapitreCount = 0;
+		this.insertSimple('cours', cours, cb);
+	};
 	this.getChapitres = function(id, cb) {
-		db.collection('chapitres').find({coursId: id}).toArray(cb);
+		db.collection('chapitres').find({coursId: id}, {content: 0}).toArray(cb);
 	};
 	this.getChapitre = function(id, cb) {
 		db.collection('chapitres').find({_id: id}).toArray(cb);
 	};
 	this.removeChapitre = function(id, cb) {
-		db.collection('chapitres').remove({_id: id}, {w:1}, cb);
+		this.getChapitre(id, function(err, doc) {
+			db.collection('chapitres').remove({_id: id}, {w:1}, cb);
+			db.collection('cours').findAndModify({_id: +(doc[0].coursId)}, [['a', 1]], {$inc:{chapitreCount: -1}}, {}, function(){});
+		})
 	};
 	this.editChapitre = function(chapitre, cb) {
 		db.collection('chapitres').update({_id: chapitre._id}, {$set: chapitre}, {w: 1}, cb);
+	};
+	this.addChapitre = function(chapitre, cb) {
+		this.insertSimple('chapitres', chapitre, cb);
+		db.collection('cours').findAndModify({_id: +chapitre.coursId}, [['a', 1]], {$inc:{chapitreCount: 1}}, {}, function(){});
 	};
 };

@@ -1,5 +1,5 @@
 'use strict';
-angular.module('App', [  'ngRoute',  'App.filters',  'App.services',  'App.directives',  'App.controllers', 'ui.bootstrap' ]).
+angular.module('App', [  'ngRoute',  'App.filters',  'App.services',  'App.directives',  'App.controllers', 'ui.bootstrap', 'btford.markdown' ]).
 
 config(['$routeProvider', function($routeProvider) {
 	$routeProvider.when('/listeCours', {templateUrl: 'tpl/listeCours.html', controller: 'listeCoursCtrl'});

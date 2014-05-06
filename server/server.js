@@ -91,7 +91,7 @@ function startServer () {
 			if(req.body.name === undefined && req.body.content === undefined && req.body.rank === undefined)
 				return res.send(400);
 
-			dbm.insertSimple('cours', {
+			dbm.addCour({
 					name: req.body.name, 
 					content: req.body.content,
 					rank: req.body.rank
@@ -105,7 +105,7 @@ function startServer () {
 	app.route('/api/getCour/:id')
 		.all(accessRights(0))
 		.get(function(req, res) {
-			dbm.getCour(req.session.rank, req.params.id, function(err, items) {
+			dbm.getCour(req.session.rank, +req.params.id, function(err, items) {
 				if(err)
 					res.send(500, err);
 				else
@@ -147,10 +147,10 @@ function startServer () {
 	app.route('/api/addChapitre/:coursId')
 		.all(accessRights(3))
 		.post(function(req, res) {
-			if(req.body.name === undefined && req.body.content === undefined && req.body.rank === undefined)
+			if(req.body.name === undefined && req.body.content === undefined && req.body.coursId === undefined)
 				return res.send(400);
 
-			dbm.insertSimple('chapitres', {
+			dbm.addChapitre({
 					name: req.body.name, 
 					content: req.body.content,
 					coursId: req.params.coursId

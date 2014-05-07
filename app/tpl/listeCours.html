@@ -6,7 +6,7 @@
 			class="btn btn-default btn-lg dropdown-toggle listButton"
 			data-toggle="dropdown"
 			ng-show="userInfo.rank >= 3">
-	{{cour.position}}
+		{{cour.position}}
 		<span class="glyphicon glyphicon-align-justify"></span>
 	</button>
 	<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
@@ -16,7 +16,7 @@
 	<button autounfocus
 			type="button"
 			class="btn btn-default btn-lg listButton"
-			ng-show="userInfo.rank >= 3 && canMoveDown(cour)"
+			ng-show="userInfo.rank >= 3"
 			ng-click="moveDown(cour)">
 		<span class="glyphicon glyphicon-chevron-down"></span>
 	</button>

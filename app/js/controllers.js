@@ -148,18 +148,7 @@ angular.module('App.controllers', [])
 			return $scope.isError(data, status);
 		});
 	};
-	$scope.canMoveDown = function(cour) {
-		return true;
-	};
 	$scope.canMoveUp = function(cour) {
-		/*var highest = cour;
-		for (var i = $scope.cours.length - 1; i >= 0; i--) {
-			if($scope.cours[i].rank == cour.rank)
-				if($scope.cours[i].position < highest.position)
-					highest = $scope.cours[i];
-		};
-		if(highest._id == cour._id)
-			return false;*/
 		if(cour.position == 0)
 			return false;
 		
@@ -213,6 +202,26 @@ angular.module('App.controllers', [])
 					}
 				};
 			}).error($scope.isError);
+	};
+	$scope.moveUp = function(chapitre) {
+		chapitre.position -= 1;
+		$http.post('api/changeChapitrePosition/' + chapitre._id, {value: chapitre.position}).error(function(data, status) {
+			chapitre.position += 1;
+			return $scope.isError(data, status);
+		});
+	};
+	$scope.moveDown = function(chapitre){
+		chapitre.position += 1;
+		$http.post('api/changeChapitrePosition/' + chapitre._id, {value: chapitre.position}).error(function(data, status) {
+			chapitre.position -= 1;
+			return $scope.isError(data, status);
+		});
+	};
+	$scope.canMoveUp = function(chapitre) {
+		if(chapitre.position == 0)
+			return false;
+		
+		return true;
 	};
 }])
 .controller('addChapitreCtrl', ['$scope', '$location', '$http', '$routeParams', function($scope, $location, $http, $routeParams){

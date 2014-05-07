@@ -62,6 +62,7 @@ module.exports = function (db) {
 		db.collection('chapitres').update({_id: chapitre._id}, {$set: chapitre}, {w: 1}, cb);
 	};
 	this.addChapitre = function(chapitre, cb) {
+		chapitre.position = 0;
 		this.insertSimple('chapitres', chapitre, cb);
 		db.collection('cours').findAndModify({_id: +chapitre.coursId}, [['a', 1]], {$inc:{chapitreCount: 1}}, {}, function(){});
 	};

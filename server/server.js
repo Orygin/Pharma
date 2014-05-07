@@ -203,6 +203,17 @@ function startServer () {
 					res.send(200);
 			})
 		});
+	app.route('/api/changeChapitrePosition/:id')
+		.all(accessRights(3))
+		.post(function(req, res) {
+			db.collection('chapitres').findAndModify({_id: +req.params.id}, [['a', 1]], {$set: {position: req.body.value}}, {w:1}, function(err) {
+				if(err && doc.count > 0)
+					res.send(500, err);
+				else
+					res.send(200);
+			});
+		});
+
 	app.route('/api/getUser/:id')
 		.all(accessRights(5))
 		.get(function(req, res) {

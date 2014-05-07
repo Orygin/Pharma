@@ -10,4 +10,11 @@ directive('integer', function(){
             });
         }
     };
+})
+.directive('autounfocus', function($window) {
+	return function (scope, ele, attr) {
+		ele.on('mouseleave', function() {
+			ele[0].blur();
+		});
+	}
 });

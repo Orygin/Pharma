@@ -3,23 +3,56 @@
 <head>
 	<meta charset="utf-8">
 	<title>Pharma</title>
-	<link rel="stylesheet" href="css/app.css"/>
+	<link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
 	<link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/app.css"/>
 </head>
 <body ng-controller="MainCtrl">
-	<div class="title" >Pharma</div>
+	<div class="topper">
+		<div class="topperButton backButton">
+			<button autounfocus type="button" class="btn btn-default btn-lg" ng-click="goto(pageInfo.back)">
+				<span class="glyphicon glyphicon-chevron-left"></span>
+			</button>
+		</div>
+		{{pageInfo.name}}
+		<div class="topRightButtons">
+			<!-- Dynamic page button -->
+			<div 	ng-repeat="btn in subBtn"
+						ng-show="btn.show"
+						class="topperButton dropdown">
+				<div class="dropdown" ng-show="btn.dropdown">
+					<button type="button" class="btn btn-default btn-lg dropdown-toggle" ng-click="btn.click()">
+						<span ng-class="btn.icon"></span>
+					</button>
+					<ul class="dropdown-menu dropdown-menu-right" role="menu">
+					<li ng-repeat="item in btn.dropItems" role="presentation">
+							<a ng-href="{{item.link}}" ng-click="item.click()" role="menuitem">{{item.name}}</a>
+						</li>
+				 	</ul>
+				</div>
+				<div ng-hide="btn.dropdown">
+					<button type="button" class="btn btn-default btn-lg" ng-click="btn.click()">
+						<span ng-class="btn.icon"></span>
+					</button>
+			  </div>
+			</div>
+			<!-- Option button -->
+			<div class="topperButton dropdown" ng-show="connected">
+				<button type="button" class="btn btn-default btn-lg dropdown-toggle">
+					<span class="glyphicon glyphicon-cog"></span>
+				</button>
+				<ul class="dropdown-menu dropdown-menu-right" role="menu">
+			    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Action</a></li>
+			    <li role="presentation" class="divider"></li>
+			    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" ng-click="disconnect()">Se déconnecter</a></li>
+			  </ul>
+			</div>
+		</div>
+	</div>
 
 	<alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
 
 	<div ng-view></div>
-
-	<footer class="footer navbar-fixed-bottom" >
-		<a href="#/">Accueil</a> - 
-		<a href="#/listeCours">Liste des cours</a> - 
-		<a href="#/listeQcm">Liste des QCM</a> - 
-		<a href="#/listeQuestions">Poser une question</a>
-		<span style="float:right" ng-show="connected"><a href="#" ng-click="disconnect()">Se déconnecter</a></span>
-	</footer>
 
 	<script src="angular/angular.js"></script>
 	<script src="angular-route/angular-route.js"></script>

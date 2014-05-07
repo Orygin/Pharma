@@ -1,13 +1,33 @@
 'use strict';
 
 angular.module('App.controllers', [])
-.controller('MainCtrl', ['$scope', '$location', '$http', function($scope, $location, $http){
+.controller('MainCtrl', ['$scope', '$location', '$http', '$rootScope', '$window', function($scope, $location, $http, $rootScope, $window){
 	$scope.alerts = [];
 	$scope.addAlert = function(message, typ) {
 		$scope.alerts.push({msg: message, type:typ});
 	};
 	$scope.closeAlert = function(index) {
 		$scope.alerts.splice(index, 1);
+	};
+
+	$scope.subBtn = [];
+	$scope.addSubButton = function(btn) {
+		if(btn.click === undefined && btn.link !== undefined)
+			btn.click = function() {$location.path(btn.link)};
+
+		$scope.subBtn[$scope.subBtn.length] = btn;
+	};
+
+	$rootScope.$on('$viewContentLoaded', function() {
+		$scope.subBtn = [];
+	});
+	$scope.goto = function(path) {
+		$location.path(path);
+	};
+
+	$scope.pageInfo = {name: "Accueil", back: ""};
+	$scope.setPageInfo = function(data) {
+		$scope.pageInfo = data;
 	};
 
 	$scope.setConnectionStatus = function(status) {
@@ -70,6 +90,7 @@ angular.module('App.controllers', [])
 	}).error($scope.isError);
 }])
 .controller('homeCtrl', ['$scope', '$http', function($scope, $http) {
+	$scope.setPageInfo({name: 'Accueil', back:""});
 	$scope.connect = function(name, password) {
 		$http.post('api/connect', {name: name, password: password}).success(function(data, status) {
 			if(status == 200){
@@ -88,8 +109,17 @@ angular.module('App.controllers', [])
 	};
 }])
 .controller('listeCoursCtrl', ['$scope', '$http', function($scope, $http){
+	$scope.setPageInfo({name: 'Liste des cours', back:"/home"});
+	
 	$http.get('api/listeCours').success(function(data) {
 		$scope.cours = data;
+
+		$scope.addSubButton({
+			show: $scope.userInfo.rank >= 3,
+			dropdown: false,
+			icon: "glyphicon glyphicon-plus",
+			link: "/addCour"
+		});
 	}).error($scope.isError);
 	$scope.remove = function(id) {
 		$http.get('api/removeCour/' + id)
@@ -103,6 +133,9 @@ angular.module('App.controllers', [])
 	};
 }])
 .controller('addCourCtrl', ['$scope', '$location', '$http', function($scope, $location, $http){
+	$scope.setPageInfo({name: 'Ajouter un cours', back:"/listeCours"});
+	$scope.cour = {};
+	$scope.cour.rank = 0;
 	$scope.send = function(cour) {
 		$http.post('api/addCour', cour).success(function() {
 			$location.path('/listeCours');
@@ -110,6 +143,7 @@ angular.module('App.controllers', [])
 	};
 }])
 .controller('editCourCtrl', ['$scope', '$http', '$location', '$routeParams', function($scope, $http, $location, $routeParams){
+	$scope.setPageInfo({name: 'Modifier un cours', back:"/listeCours"});
 	$http.get('api/getCour/' + $routeParams.id).success(function(data) {
 		$scope.cour = data;
 	}).error($scope.isError);
@@ -120,12 +154,21 @@ angular.module('App.controllers', [])
 	};
 }])
 .controller('listeChapitresCtrl', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams){
+	$scope.setPageInfo({name: 'Liste des chapitres', back:"/listeCours"});
 	$scope.coursId = $routeParams.id;
+
 	$http.get('api/listeChapitres/' + $scope.coursId).success(function(data) {
 		$scope.chapitres = data;
+		$scope.addSubButton({
+			show: $scope.userInfo.rank >= 3,
+			dropdown: false,
+			icon: "glyphicon glyphicon-plus",
+			link: "/addChapitre/" + $scope.coursId
+		});
 	}).error($scope.isError);
 	$http.get('api/getCour/' + $routeParams.id).success(function(data) {
 		$scope.cour = data;
+		$scope.setPageInfo({name: data.name, back:"/listeCours"});
 	}).error($scope.isError);
 	$scope.remove = function(id) {
 		$http.get('api/removeChapitre/' + id)
@@ -139,6 +182,7 @@ angular.module('App.controllers', [])
 	};
 }])
 .controller('addChapitreCtrl', ['$scope', '$location', '$http', '$routeParams', function($scope, $location, $http, $routeParams){
+	$scope.setPageInfo({name: 'Ajouter un chapitre', back:"/listeChapitres/" + $routeParams.id});
 	$scope.chapitre = {};
 	$scope.chapitre.coursId = $routeParams.id;
 	$scope.send = function(chapitre) {
@@ -148,7 +192,9 @@ angular.module('App.controllers', [])
 	};
 }])
 .controller('editChapitreCtrl', ['$scope', '$http', '$location', '$routeParams', function($scope, $http, $location, $routeParams){
+	$scope.setPageInfo({name: 'Editer un chapitre', back:"/listeCours/"});
 	$http.get('api/getChapitre/' + $routeParams.id).success(function(data) {
+		$scope.setPageInfo({name: 'Editer un chapitre', back:"/listeChapitres/" + data.coursId});
 		$scope.chapitre = data;
 	}).error($scope.isError);
 	$scope.send = function(chapitre) {
@@ -158,8 +204,10 @@ angular.module('App.controllers', [])
 	};
 }])
 .controller('viewChapitreCtrl', ['$scope', '$http', '$location', '$routeParams', function($scope, $http, $location, $routeParams){
+	$scope.setPageInfo({name: 'Visioner un chapitre', back:"/listeChapitres"});
 	$http.get('api/getChapitre/' + $routeParams.id).success(function(data) {
 		$scope.chapitre = data;
+		$scope.setPageInfo({name: data.name, back:"/listeChapitres/" + data.coursId});
 
 		$http.get('api/getCour/' + data.coursId).success(function(data) {
 			$scope.cour = data;

@@ -1,5 +1,5 @@
 <form novalidate role="form">
-    Nom: <input type="text" ng-model="chapitre.name" /><br />
-    Contenu: <input type="text" ng-model="chapitre.content" /><br />
+    Nom: <input type="text" ng-model="chapitre.name" class="form-control"/><br />
+    Contenu: <textarea ng-model="chapitre.content" class="form-control"/>{{chapitre.content}}</textarea><br />
     <button ng-click="send(chapitre)" class="btn btn-primary">Envoyer</button>
   </form>

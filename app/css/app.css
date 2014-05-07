@@ -7,7 +7,7 @@ body{
 {
   width: 300px;
   padding: 5px;
-  height: 123px;
+  height: 128px;
   margin-top: 50px;
   margin-right: auto;
   margin-left: auto;
@@ -87,8 +87,9 @@ body{
   height: 40px;
   width: 110px;
   float: right;
+  text-align: center;
 }
-.cour{
+.listItem{
   color: white;
   background-color: #555;
   min-height: 44px;
@@ -112,6 +113,12 @@ body{
 }
 .listColor7{
  background-color: rgb(0, 120, 255);
+}
+.listColorProf{
+ background-color: gray;
+}
+.listColorAdmin{
+ background-color: purple;
 }
 .chapitreName{
   font-size: 24px;

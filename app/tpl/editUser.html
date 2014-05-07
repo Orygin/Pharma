@@ -1,0 +1,13 @@
+<form novalidate role="form">
+    Nom: <input type="text" ng-model="user.name" class="form-control"/><br />
+    Mot de passe: <input type="text" ng-model="user.password" class="form-control"/><br />
+    <div class="btn-group">
+        <label class="btn btn-default" ng-model="user.rank" btn-radio="0" selected>5 ème</label>
+        <label class="btn btn-default" ng-model="user.rank" btn-radio="1">6 ème</label>
+        <label class="btn btn-default" ng-model="user.rank" btn-radio="2">7 ème</label>
+        <label class="btn btn-default" ng-model="user.rank" btn-radio="3">Prof</label>
+        <label class="btn btn-default" ng-model="user.rank" btn-radio="4">Admin</label>
+    </div>
+    <br /><br />
+    <button ng-click="send(user)" class="btn btn-primary">Envoyer</button>
+  </form>

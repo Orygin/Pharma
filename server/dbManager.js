@@ -18,6 +18,15 @@ module.exports = function (db) {
 	this.getUser = function(userObj, cb) {
 		db.collection('users').find(userObj).toArray(cb);
 	};
+	this.getUsers = function(cb) {
+		db.collection('users').find({}, {password: 0}).toArray(cb);
+	};
+	this.addUser = function(user, cb) {
+		this.insertSimple('users', user, cb);
+	};
+	this.removeUser = function(id, cb) {
+		db.collection('users').remove({_id: id}, {w:1}, cb);
+	};
 	this.getCours = function(userRank, cb) {
 		db.collection('cours').find({rank: {$lte: userRank}}).toArray(cb);
 	};
@@ -34,6 +43,7 @@ module.exports = function (db) {
 	};
 	this.addCour = function(cours, cb) {
 		cours.chapitreCount = 0;
+		cours.position = 0;
 		this.insertSimple('cours', cours, cb);
 	};
 	this.getChapitres = function(id, cb) {

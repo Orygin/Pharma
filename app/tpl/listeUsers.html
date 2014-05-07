@@ -1,0 +1,18 @@
+<div 	ng-repeat="user in users | orderBy:['rank', 'name']"
+		class="listItem dropdown"
+		ng-class="{listColor5: user.rank == 0, listColor6: user.rank == 1, listColor7: user.rank == 2, listColorProf: user.rank == 3, listColorAdmin: user.rank == 4}">
+	<button autounfocus
+			type="button"
+			class="btn btn-default btn-lg dropdown-toggle listButton"
+			data-toggle="dropdown"
+			ng-show="userInfo.rank >= 3">
+		<span class="glyphicon glyphicon-align-justify"></span>
+	</button>
+	<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
+		    <li role="presentation"><a role="menuitem" tabindex="-1" ng-href="/#/editUser/{{user._id}}">Editer</a></li>
+		    <li role="presentation"><a role="menuitem" tabindex="-1" href="" ng-click="remove(user._id)">Supprimer</a></li>
+	</ul>
+	<span ng-click="goto('/viewUser/'+ user._id)" style="cursor: pointer">
+		{{user.name}}
+	</span>
+</div>

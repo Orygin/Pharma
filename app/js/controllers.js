@@ -22,7 +22,10 @@ angular.module('App.controllers', [])
 		$scope.subBtn = [];
 	});
 	$scope.goto = function(path) {
-		$location.path(path);
+		if(path === "auto")
+			$window.history.back();
+		else
+			$location.path(path);
 	};
 
 	$scope.pageInfo = {name: "Accueil", back: ""};
@@ -131,6 +134,37 @@ angular.module('App.controllers', [])
 				};
 			}).error($scope.isError);
 	};
+	$scope.moveUp = function(cour) {
+		cour.position -= 1;
+		$http.post('api/changeCourPosition/' + cour._id, {value: cour.position}).error(function(data, status) {
+			cour.position += 1;
+			return $scope.isError(data, status);
+		});
+	};
+	$scope.moveDown = function(cour){
+		cour.position += 1;
+		$http.post('api/changeCourPosition/' + cour._id, {value: cour.position}).error(function(data, status) {
+			cour.position -= 1;
+			return $scope.isError(data, status);
+		});
+	};
+	$scope.canMoveDown = function(cour) {
+		return true;
+	};
+	$scope.canMoveUp = function(cour) {
+		/*var highest = cour;
+		for (var i = $scope.cours.length - 1; i >= 0; i--) {
+			if($scope.cours[i].rank == cour.rank)
+				if($scope.cours[i].position < highest.position)
+					highest = $scope.cours[i];
+		};
+		if(highest._id == cour._id)
+			return false;*/
+		if(cour.position == 0)
+			return false;
+		
+		return true;
+	};
 }])
 .controller('addCourCtrl', ['$scope', '$location', '$http', function($scope, $location, $http){
 	$scope.setPageInfo({name: 'Ajouter un cours', back:"/listeCours"});
@@ -213,4 +247,44 @@ angular.module('App.controllers', [])
 			$scope.cour = data;
 		}).error($scope.isError);
 	}).error($scope.isError);
+}])
+.controller('listeUsersCtrl', ['$scope', '$http', function($scope, $http){
+	$scope.setPageInfo({name: 'Liste des utilisateurs', back:"/home"});
+	$http.get('api/getUsers/').success(function(data) {
+		$scope.users = data;
+		$scope.addSubButton({
+			show: $scope.userInfo.rank >= 3,
+			dropdown: false,
+			icon: "glyphicon glyphicon-plus",
+			link: "/addUser/"
+		});
+	}).error($scope.isError);
+	$scope.remove = function(id) {
+		$http.get('api/removeUser/' + id).success(function() {
+			for (var i = $scope.users.length - 1; i >= 0; i--) {
+					if($scope.users[i]._id == id){
+						$scope.users.splice(i, 1);
+					}
+				};
+		}).error($scope.isError);
+	};
+}])
+.controller('addUserCtrl', ['$scope', '$http', '$location', '$routeParams', function($scope, $http, $location, $routeParams){
+	$scope.setPageInfo({name: 'Ajouter un utilisateur', back:"/listeUsers"});
+	$scope.send = function(user) {
+		$http.post('api/addUser', user).success(function() {
+			$location.path('/listeUsers');
+		}).error($scope.isError)
+	};
+}])
+.controller('editUserCtrl', ['$scope', '$http', '$location', '$routeParams', function($scope, $http, $location, $routeParams){
+	$scope.setPageInfo({name: 'Editer un utilisateur', back:"/listeUsers"});
+	$http.get('api/getUser/' + $routeParams.id).success(function(data) {
+		$scope.user = data;
+	}).error($scope.isError);
+	$scope.send = function(user) {
+		$http.post('api/addUser', user).success(function() {
+			$location.path('/listeUsers');
+		}).error($scope.isError)
+	};
 }]);

@@ -23,7 +23,9 @@ MongoClient.connect("mongodb://localhost:27017/pharma", function(err, d) {
 
 function accessRights (lvl) {
 	return function (req, res, next) {
-		if(req.session.isConnected && req.session.rank >= lvl)
+		if(lvl == 5 && req.session.isConnected && (req.session.rank >= lvl || req.session._id == req.body.id))
+			return next();
+		else if(req.session.isConnected && req.session.rank >= lvl)
 			return next();
 		else
 			return res.send(401);
@@ -132,6 +134,16 @@ function startServer () {
 					res.send(200);
 			})
 		});
+	app.route('/api/changeCourPosition/:id')
+		.all(accessRights(3))
+		.post(function(req, res) {
+			db.collection('cours').findAndModify({_id: +req.params.id}, [['a', 1]], {$set: {position: req.body.value}}, {w:1}, function(err) {
+				if(err && doc.count > 0)
+					res.send(500, err);
+				else
+					res.send(200);
+			});
+		});
 
 	app.route('/api/listeChapitres/:coursId')
 		.all(accessRights(0))
@@ -190,6 +202,52 @@ function startServer () {
 				else
 					res.send(200);
 			})
+		});
+	app.route('/api/getUser/:id')
+		.all(accessRights(5))
+		.get(function(req, res) {
+			dbm.getUser({_id: +req.params.id}, function(err, data) {
+				if(err)
+					res.send(500, err);
+				else
+					res.send(200, data[0]);
+			});
+		});
+	app.route('/api/getUsers')
+		.all(accessRights(3))
+		.get(function(req, res) {
+			dbm.getUsers(function(err, data) {
+				if(err)
+					res.send(500, err);
+				else
+					res.send(200, data);
+			});
+		});
+	app.route('/api/addUser')
+		.all(accessRights(3))
+		.post(function(req, res) {
+			var user = {
+				name: req.body.name,
+				password: req.body.password,
+				rank: req.body.rank,
+				stats: {}
+			}
+			dbm.addUser(user, function(err) {
+				if(err)
+					res.send(500, err);
+				else
+					res.send(200);
+			});
+		});
+	app.route('/api/removeUser/:id')
+		.all(accessRights(3))
+		.get(function(req, res) {
+			dbm.removeUser(+req.params.id, function(err) {
+				if(err)
+					res.send(500, err);
+				else
+					res.send(200);	
+			});
 		});
 
 	app.listen(80);

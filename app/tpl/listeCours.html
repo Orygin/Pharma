@@ -1,17 +1,32 @@
 <div 	ng-repeat="cour in cours | orderBy:['rank', 'position']" 
-		class="cour dropdown"
+		class="listItem dropdown"
 		ng-class="{listColor5: cour.rank == 0, listColor6: cour.rank == 1, listColor7: cour.rank == 2}">
 	<button autounfocus
 			type="button"
 			class="btn btn-default btn-lg dropdown-toggle listButton"
 			data-toggle="dropdown"
 			ng-show="userInfo.rank >= 3">
+	{{cour.position}}
 		<span class="glyphicon glyphicon-align-justify"></span>
 	</button>
 	<ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
 		    <li role="presentation"><a role="menuitem" tabindex="-1" ng-href="/#/editCour/{{cour._id}}">Editer</a></li>
 		    <li role="presentation"><a role="menuitem" tabindex="-1" href="" ng-click="remove(cour._id)">Supprimer</a></li>
 	</ul>
+	<button autounfocus
+			type="button"
+			class="btn btn-default btn-lg listButton"
+			ng-show="userInfo.rank >= 3 && canMoveDown(cour)"
+			ng-click="moveDown(cour)">
+		<span class="glyphicon glyphicon-chevron-down"></span>
+	</button>
+	<button autounfocus
+			type="button"
+			class="btn btn-default btn-lg listButton"
+			ng-show="userInfo.rank >= 3 && canMoveUp(cour)"
+			ng-click="moveUp(cour)">
+		<span class="glyphicon glyphicon-chevron-up"></span>
+	</button>
 	<span ng-click="goto('/listeChapitres/'+ cour._id)" style="cursor: pointer">
 	{{cour.name}} : {{cour.chapitreCount}} chapitres<br>
 	{{cour.content}}</span>

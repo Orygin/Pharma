@@ -113,7 +113,19 @@ angular.module('App.controllers', [])
 }])
 .controller('listeCoursCtrl', ['$scope', '$http', function($scope, $http){
 	$scope.setPageInfo({name: 'Liste des cours', back:"/home"});
-	
+	$scope.rankShown = {r0:true,r1:true,r2:true};
+	$scope.filterOn = false;
+	$scope.toggleFilter = function() {
+		$scope.filterOn = !$scope.filterOn;
+	};
+	$scope.shouldShow = function(rank) {
+		if(rank == 0)
+			return $scope.rankShown.r0;
+		else if (rank == 1)
+			return $scope.rankShown.r1;
+		else if (rank == 2)
+			return $scope.rankShown.r2;
+	};
 	$http.get('api/listeCours').success(function(data) {
 		$scope.cours = data;
 
@@ -122,6 +134,12 @@ angular.module('App.controllers', [])
 			dropdown: false,
 			icon: "glyphicon glyphicon-plus",
 			link: "/addCour"
+		});
+		$scope.addSubButton({
+			show: true,
+			dropdown: false,
+			icon: "glyphicon glyphicon-filter",
+			click: $scope.toggleFilter
 		});
 	}).error($scope.isError);
 	$scope.remove = function(id) {

@@ -1,6 +1,21 @@
+<div class="listItem" ng-show="filterOn">
+	<span class="glyphicon glyphicon-remove" style="cursor:pointer" ng-click="toggleFilter()"></span>
+	<div class="btn-group autoMarginMiddle">
+    	<button type="button" class="btn btn-default listButton" ng-model="rankShown.r0" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false">
+    		5 ème
+    	</button>
+    	<button type="button" class="btn btn-default listButton" ng-model="rankShown.r1" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false">
+    		6 ème
+    	</button>
+    	<button type="button" class="btn btn-default listButton" ng-model="rankShown.r2" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false">
+    		7 ème
+    	</button>
+    </div>
+</div>
 <div 	ng-repeat="cour in cours | orderBy:['rank', 'position']" 
 		class="listItem dropdown"
-		ng-class="{listColor5: cour.rank == 0, listColor6: cour.rank == 1, listColor7: cour.rank == 2}">
+		ng-class="{listColor5: cour.rank == 0, listColor6: cour.rank == 1, listColor7: cour.rank == 2}"
+		ng-show="shouldShow(cour.rank)">
 	<button autounfocus
 			type="button"
 			class="btn btn-default btn-lg dropdown-toggle listButton"

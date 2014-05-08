@@ -76,6 +76,9 @@ body{
   width: 44px;
   display: inline-block;
 }
+.topperButton ul{
+  text-align: center;
+}
 .topperButton .btn:active, .topperButton .btn:focus{
   outline: none;
   outline-width: 0;
@@ -85,9 +88,13 @@ body{
 }
 .topRightButtons{
   height: 40px;
-  width: 110px;
   float: right;
-  text-align: center;
+  text-align: right;
+  margin-right: 8px;
+}
+.autoMarginMiddle
+{
+  margin-top: 5px;
 }
 .listItem{
   color: white;

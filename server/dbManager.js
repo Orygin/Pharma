@@ -66,4 +66,19 @@ module.exports = function (db) {
 		this.insertSimple('chapitres', chapitre, cb);
 		db.collection('cours').findAndModify({_id: +chapitre.coursId}, [['a', 1]], {$inc:{chapitreCount: 1}}, {}, function(){});
 	};
+	this.getQcm = function(id, cb) {
+		db.collection('chapitres').find({qcm: {$elemMatch: {_id: id}}}, {qcm: {$elemMatch: {_id: id} } }).toArray(cb);
+	};
+	this.addQcm = function(cid, data, cb) {
+		this.getNexSequence('qcm', function(count) {
+			data._id = count;
+			db.collection('chapitres').update({_id: cid}, {$push: { qcm: data}}, {w:1}, cb);
+		});
+	};
+	this.editQcm = function(id, qcm, cb) {
+		db.collection('chapitres').update({qcm: {$elemMatch: {_id: id}}}, {$set: {'qcm.$': qcm}}, {w: 1}, cb);
+	};
+	this.removeQcm = function(cid, qid, cb) {
+		db.collection('chapitres').update({_id: cid}, { $pull: { qcm: { _id: qid } } }, {w:1}, cb);
+	};
 };

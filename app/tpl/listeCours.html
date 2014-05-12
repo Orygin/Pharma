@@ -1,4 +1,4 @@
-<div class="listItem" ng-show="filterOn">
+<div class="listItem listItemHeader" ng-show="filterOn">
 	<span class="glyphicon glyphicon-remove" style="cursor:pointer" ng-click="toggleFilter()"></span>
 	<div class="btn-group autoMarginMiddle">
     	<button type="button" class="btn btn-default listButton" ng-model="rankShown.r0" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false">
@@ -13,7 +13,7 @@
     </div>
 </div>
 <div 	ng-repeat="cour in cours | orderBy:['rank', 'position']" 
-		class="listItem dropdown"
+		class="listItem listItemHeader dropdown"
 		ng-class="{listColor5: cour.rank == 0, listColor6: cour.rank == 1, listColor7: cour.rank == 2}"
 		ng-show="shouldShow(cour.rank)">
 	<button autounfocus

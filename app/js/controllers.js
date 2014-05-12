@@ -42,6 +42,7 @@ angular.module('App.controllers', [])
 		$scope.userInfo = data;
 	};
 	$scope.isError = function(data, status) {
+		console.log(status, data);
 		if(data.error){
 			switch(data.error){
 				case 'not logged':
@@ -64,6 +65,7 @@ angular.module('App.controllers', [])
 					break;
 				case 500:
 				default:
+					$scope.addAlert('Une erreur indéterminée s\'est produite, veuillez réessayer', 'info');
 					console.dir(data);
 					return true;
 					break;
@@ -221,25 +223,56 @@ angular.module('App.controllers', [])
 				};
 			}).error($scope.isError);
 	};
-	$scope.moveUp = function(chapitre) {
-		chapitre.position -= 1;
-		$http.post('api/changeChapitrePosition/' + chapitre._id, {value: chapitre.position}).error(function(data, status) {
-			chapitre.position += 1;
-			return $scope.isError(data, status);
-		});
+	$scope.removeQcm = function(qcm, chapitre) {
+		$http.get('api/removeQcm/' + chapitre._id + '/' + qcm._id)
+			.success(function() {
+				for (var i = $scope.chapitres.length - 1; i >= 0; i--) {
+					if($scope.chapitres[i] === chapitre){
+						for (var j = $scope.chapitres[i].qcm.length - 1; j >= 0; j--) {
+							if($scope.chapitres[i].qcm[j] === qcm)
+								$scope.chapitres[i].qcm.splice(j, 1);
+						};
+					}
+				};
+			}).error($scope.isError);
 	};
-	$scope.moveDown = function(chapitre){
+	$scope.moveUp = function(chapitre, qcm) {
+		chapitre.position -= 1;
+		if(!qcm)
+			$http.post('api/changeChapitrePosition/' + chapitre._id, {value: chapitre.position}).error(function(data, status) {
+				chapitre.position += 1;
+				return $scope.isError(data, status);
+			});
+		else
+			$http.post('api/changeQcmPosition/' + chapitre._id, {value: chapitre.position}).error(function(data, status) {
+				chapitre.position += 1;
+				return $scope.isError(data, status);
+			});
+	};
+	$scope.moveDown = function(chapitre, qcm){
 		chapitre.position += 1;
-		$http.post('api/changeChapitrePosition/' + chapitre._id, {value: chapitre.position}).error(function(data, status) {
-			chapitre.position -= 1;
-			return $scope.isError(data, status);
-		});
+		if(!qcm)
+			$http.post('api/changeChapitrePosition/' + chapitre._id, {value: chapitre.position}).error(function(data, status) {
+				chapitre.position -= 1;
+				return $scope.isError(data, status);
+			});
+		else
+			$http.post('api/changeQcmPosition/' + chapitre._id, {value: chapitre.position}).error(function(data, status) {
+				chapitre.position -= 1;
+				return $scope.isError(data, status);
+			});
 	};
 	$scope.canMoveUp = function(chapitre) {
 		if(chapitre.position == 0)
 			return false;
 		
 		return true;
+	};
+	$scope.toggleQcmList = function(cour) {
+		if(cour.active === undefined)
+			cour.active = true;
+		else
+			cour.active = !cour.active;
 	};
 }])
 .controller('addChapitreCtrl', ['$scope', '$location', '$http', '$routeParams', function($scope, $location, $http, $routeParams){
@@ -314,4 +347,52 @@ angular.module('App.controllers', [])
 			$location.path('/listeUsers');
 		}).error($scope.isError)
 	};
-}]);
+}])
+.controller('listeQcmCtrl', ['$scope', '$http', '$location', function($scope, $http, $location){
+	$scope.getChapitreId = function() {
+		return $scope.chapitre._id;
+	};
+}])
+.controller('addQcmCtrl', ['$scope', '$http', '$window', '$routeParams', function($scope, $http, $window, $routeParams){
+	$scope.setPageInfo({name: 'Ajouter un questionnaire', back:"/listeChapitres/" + $routeParams.id});
+	$scope.chapitreId = $routeParams.id;
+	$scope.qcm = {};
+	$scope.send = function(qcm) {
+		qcm = angular.copy(qcm);
+		$http.post('api/addQcm/' + $scope.chapitreId, qcm).success(function() {
+			$window.history.back();
+		}).error($scope.isError)
+	};
+}])
+.controller('editQcmCtrl', ['$scope', '$http', '$window', '$routeParams', function($scope, $http, $window, $routeParams){
+	$scope.setPageInfo({name: 'Editer un questionnaire', back:"/home"});
+
+	$http.get('api/getQcm/' + $routeParams.id).success(function(data) {
+		$scope.setPageInfo({name: 'Ajouter un questionnaire', back:"/listeChapitres/" + data._id});
+		console.dir(data);
+		$scope.chapitreId = data._id;
+		$scope.qcm = data.qcm[0];
+	}).error($scope.isError)
+
+	$scope.send = function(qcm) {
+		qcm = angular.copy(qcm); //wipes out unused keys
+		$http.post('api/editQcm/' + qcm._id, qcm).success(function() {
+			$window.history.back();
+		}).error($scope.isError)	
+	};
+}])
+.controller('qcmFormCtrl', ['$scope', function($scope){
+	$scope.addQuestion = function() {
+		if($scope.qcm.questions === undefined)
+			$scope.qcm.questions = [];
+		$scope.qcm.questions[$scope.qcm.questions.length] = {name: "sauce"};
+	};
+	$scope.addAnswer = function(question) {
+		if(question.answers === undefined)
+			question.answers = [];
+		question.answers[question.answers.length] = {value: "1"};
+	};
+	$scope.removeAnswer = function(question, id) {
+		question.answers.splice(id, 1);
+	};
+}])

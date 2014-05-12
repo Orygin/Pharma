@@ -1,5 +1,5 @@
 'use strict';
-angular.module('App', [  'ngRoute',  'App.filters',  'App.services',  'App.directives',  'App.controllers', 'ui.bootstrap', 'btford.markdown' ]).
+angular.module('App', [  'ngRoute', 'ngAnimate',  'App.filters',  'App.services',  'App.directives',  'App.controllers', 'ui.bootstrap', 'btford.markdown' ]).
 
 config(['$routeProvider', function($routeProvider) {
 	$routeProvider.when('/listeCours', {templateUrl: 'tpl/listeCours.html', controller: 'listeCoursCtrl'});
@@ -12,6 +12,8 @@ config(['$routeProvider', function($routeProvider) {
 	$routeProvider.when('/listeUsers', {templateUrl: 'tpl/listeUsers.html', controller: 'listeUsersCtrl'});
 	$routeProvider.when('/addUser', {templateUrl: 'tpl/editUser.html', controller: 'addUserCtrl'});
 	$routeProvider.when('/editUser/:id', {templateUrl: 'tpl/editUser.html', controller: 'editUserCtrl'});
-	$routeProvider.when('/listeQcm', {templateUrl: 'tpl/lqcm.html', controller: 'listeQcmCtrl'});
+	$routeProvider.when('/addQcm/:id', {templateUrl: 'tpl/editQcm.html', controller: 'addQcmCtrl'});
+	$routeProvider.when('/editQcm/:id', {templateUrl: 'tpl/editQcm.html', controller: 'editQcmCtrl'});
+	$routeProvider.when('/viewQcm/:id', {templateUrl: 'tpl/viewQcm.html', controller: 'viewQcmCtrl'});
 	$routeProvider.otherwise({templateUrl:"tpl/home.html", controller: "homeCtrl"});
 }]);

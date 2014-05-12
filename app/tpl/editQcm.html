@@ -1,0 +1,42 @@
+<div ng-controller="qcmFormCtrl" class="listItem">
+<form novalidate role="form">
+    <div class="listItemHeader">
+        Nom: <input type="text" ng-model="qcm.name" class="form-control"/>
+        <button autounfocus
+            type="button"
+            class="btn btn-default btn-lg" ng-click="addQuestion()">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <button autounfocus
+            type="button"
+            class="btn btn-default btn-lg" ng-click="send(qcm)">
+            <span class="glyphicon glyphicon-send"></span>
+        </button>
+    </div>
+    <div ng-repeat="question in qcm.questions"
+        class="listItemContentItem">
+        Question: <input type="text" ng-model="question.name" class="form-control"/><br />
+        Type: <div class="btn-group">
+            <label class="btn btn-default" ng-model="question.type" btn-radio="0" selected>Choix multiple</label>
+            <label class="btn btn-default" ng-model="question.type" btn-radio="1">Réponse unique</label>
+        </div>
+        <div ng-show="question.type == 1">
+            Réponse: <input type="text" ng-model="question.answer" class="form-control"/>
+        </div>
+        <div ng-show="question.type == 0">
+            <button autounfocus
+                type="button"
+                class="btn btn-default btn-lg" ng-click="addAnswer(question)">
+                <span class="glyphicon glyphicon-plus"></span>
+            </button>
+                <ul>
+                    <li ng-repeat="answer in question.answers track by $index">
+                        <span class="glyphicon glyphicon-ok-sign" ng-show="$first"></span>
+                        <span class="glyphicon glyphicon-trash" ng-click="removeAnswer(question, $index)"></span>
+                        <input type="text" ng-model="answer.value" class="form-control"/>
+                    </li>
+                </ul>
+        </div>
+    </div>
+</form>
+</div>

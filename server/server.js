@@ -31,6 +31,35 @@ function accessRights (lvl) {
 			return res.send(401);
 	};
 }
+function easyResSend(res) {
+	return (function(err, data) {
+			console.dir(data);
+		if(err){
+			res.send(500, err);
+			console.log('error');
+		}
+		else if(Object.prototype.toString.call( data ) === '[object Array]'){ //It's an array
+			console.log('array')
+			if(data.length === 1){
+				res.send(200, data[0])
+				console.log('len 1')
+			}
+			else{
+				res.send(200, data);
+				console.log('len > 1')
+			}
+		}
+		else if (data === undefined){
+			console.log('no data')
+			res.send(200);
+		}
+		else if(typeof data === 'object'){
+			res.send(200, data);
+		}
+		else
+			res.send(200);
+		});
+};
 function startServer () {
 	// Serve static files
 	app.use(express.static(__dirname + '/../app'));
@@ -80,12 +109,7 @@ function startServer () {
 		.all(accessRights(0))
 		.get(function(req, res) {
 			var userrank = req.session.rank;
-			dbm.getCours(userrank, function(err, items) {
-				if(!err)
-					res.send(200, items);
-				else
-					res.send(500, err);
-			});
+			dbm.getCours(userrank, easyResSend(res));
 		});
 	app.route('/api/addCour')
 		.all(accessRights(3))
@@ -97,42 +121,22 @@ function startServer () {
 					name: req.body.name, 
 					content: req.body.content,
 					rank: req.body.rank
-				}, function(err, result) {
-					if(err)
-						res.send(500, err);
-					else
-						res.send(200);
-				});
+				}, easyResSend(res));
 		});
 	app.route('/api/getCour/:id')
 		.all(accessRights(0))
 		.get(function(req, res) {
-			dbm.getCour(req.session.rank, +req.params.id, function(err, items) {
-				if(err)
-					res.send(500, err);
-				else
-					res.send(200, items[0]);
-			});
+			dbm.getCour(req.session.rank, +req.params.id, easyResSend(res));
 		});
 	app.route('/api/editCour/:id')
 		.all(accessRights(3))
 		.post(function(req, res) {
-			dbm.editCour(req.body, function(err) {
-				if(err)
-					res.send(500, err);
-				else
-					res.send(200);
-			});
+			dbm.editCour(req.body, easyResSend(res));
 		});
 	app.route('/api/removeCour/:id')
 		.all(accessRights(3))
 		.get(function(req, res) {
-			dbm.removeCour(+req.params.id, function(err, nbr) {
-				if(err)
-					res.send(500, err);
-				else
-					res.send(200);
-			})
+			dbm.removeCour(+req.params.id, easyResSend(res))
 		});
 	app.route('/api/changeCourPosition/:id')
 		.all(accessRights(3))
@@ -149,12 +153,7 @@ function startServer () {
 		.all(accessRights(0))
 		.get(function(req, res) {
 			var coursId = req.params.coursId;
-			dbm.getChapitres(coursId, function(err, items) {
-				if(!err)
-					res.send(200, items);
-				else
-					res.send(500, err);
-			});
+			dbm.getChapitres(coursId, easyResSend(res));
 		});
 	app.route('/api/addChapitre/:coursId')
 		.all(accessRights(3))
@@ -166,42 +165,22 @@ function startServer () {
 					name: req.body.name, 
 					content: req.body.content,
 					coursId: req.params.coursId
-				}, function(err, result) {
-					if(err)
-						res.send(500, err);
-					else
-						res.send(200);
-				});
+				}, easyResSend(res));
 		});
 	app.route('/api/getChapitre/:id')
 		.all(accessRights(0))
 		.get(function(req, res) {
-			dbm.getChapitre(+req.params.id, function(err, items) {
-				if(err)
-					res.send(500, err);
-				else
-					res.send(200, items[0]);
-			});
+			dbm.getChapitre(+req.params.id, easyResSend(res));
 		});
 	app.route('/api/editChapitre/:id')
 		.all(accessRights(3))
 		.post(function(req, res) {
-			dbm.editChapitre(req.body, function(err) {
-				if(err)
-					res.send(500, err);
-				else
-					res.send(200);
-			});
+			dbm.editChapitre(req.body, easyResSend(res));
 		});
 	app.route('/api/removeChapitre/:id')
 		.all(accessRights(3))
 		.get(function(req, res) {
-			dbm.removeChapitre(+req.params.id, function(err, nbr) {
-				if(err)
-					res.send(500, err);
-				else
-					res.send(200);
-			})
+			dbm.removeChapitre(+req.params.id, easyResSend(res))
 		});
 	app.route('/api/changeChapitrePosition/:id')
 		.all(accessRights(3))
@@ -217,22 +196,12 @@ function startServer () {
 	app.route('/api/getUser/:id')
 		.all(accessRights(5))
 		.get(function(req, res) {
-			dbm.getUser({_id: +req.params.id}, function(err, data) {
-				if(err)
-					res.send(500, err);
-				else
-					res.send(200, data[0]);
-			});
+			dbm.getUser({_id: +req.params.id}, easyResSend(res));
 		});
 	app.route('/api/getUsers')
 		.all(accessRights(3))
 		.get(function(req, res) {
-			dbm.getUsers(function(err, data) {
-				if(err)
-					res.send(500, err);
-				else
-					res.send(200, data);
-			});
+			dbm.getUsers(easyResSend(res));
 		});
 	app.route('/api/addUser')
 		.all(accessRights(3))
@@ -243,22 +212,32 @@ function startServer () {
 				rank: req.body.rank,
 				stats: {}
 			}
-			dbm.addUser(user, function(err) {
-				if(err)
-					res.send(500, err);
-				else
-					res.send(200);
-			});
+			dbm.addUser(user, easyResSend(res));
 		});
 	app.route('/api/removeUser/:id')
 		.all(accessRights(3))
 		.get(function(req, res) {
-			dbm.removeUser(+req.params.id, function(err) {
-				if(err)
-					res.send(500, err);
-				else
-					res.send(200);	
-			});
+			dbm.removeUser(+req.params.id, easyResSend(res));
+		});
+	app.route('/api/getQcm/:id')
+		.all(accessRights(3))
+		.get(function(req, res) {
+			dbm.getQcm(+req.params.id, easyResSend(res));
+		});
+	app.route('/api/addQcm/:id')
+		.all(accessRights(3))
+		.post(function(req, res) {
+			dbm.addQcm(+req.params.id, req.body, easyResSend(res));
+		});
+	app.route('/api/editQcm/:id')
+		.all(accessRights(3))
+		.post(function(req, res) {
+			dbm.editQcm(+req.params.id, req.body, easyResSend(res));
+		});
+	app.route('/api/removeQcm/:cid/:qid')
+		.all(accessRights(3))
+		.get(function(req, res) {
+			dbm.removeQcm(+req.params.cid, +req.params.qid, easyResSend(res));
 		});
 
 	app.listen(80);

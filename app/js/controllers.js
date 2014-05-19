@@ -1,4 +1,38 @@
 'use strict';
+// Compute the edit distance between the two given strings
+function getEditDistance(a, b) {
+  if(a.length === 0) return b.length; 
+  if(b.length === 0) return a.length; 
+ 
+  var matrix = [];
+ 
+  // increment along the first column of each row
+  var i;
+  for(i = 0; i <= b.length; i++){
+    matrix[i] = [i];
+  }
+ 
+  // increment each column in the first row
+  var j;
+  for(j = 0; j <= a.length; j++){
+    matrix[0][j] = j;
+  }
+ 
+  // Fill in the rest of the matrix
+  for(i = 1; i <= b.length; i++){
+    for(j = 1; j <= a.length; j++){
+      if(b.charAt(i-1) == a.charAt(j-1)){
+        matrix[i][j] = matrix[i-1][j-1];
+      } else {
+        matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
+                                Math.min(matrix[i][j-1] + 1, // insertion
+                                         matrix[i-1][j] + 1)); // deletion
+      }
+    }
+  }
+ 
+  return matrix[b.length][a.length];
+};
 
 angular.module('App.controllers', [])
 .controller('MainCtrl', ['$scope', '$location', '$http', '$rootScope', '$window', function($scope, $location, $http, $rootScope, $window){
@@ -22,7 +56,11 @@ angular.module('App.controllers', [])
 		$scope.subBtn = [];
 	});
 	$scope.goto = function(path) {
-		if(path === "auto")
+		if(typeof(path) == "function"){
+			if(!path())
+				$scope.goto($scope.pageInfo.fallback);
+		}
+		else if(path === "auto")
 			$window.history.back();
 		else
 			$location.path(path);
@@ -85,6 +123,23 @@ angular.module('App.controllers', [])
 				$scope.isError(data, status);
 		});
 	};
+	// -> Fisher–Yates shuffle algorithm
+	$scope.shuffleArray = function(array) {
+	  var m = array.length, t, i;
+
+	  // While there remain elements to shuffle
+	  while (m) {
+	    // Pick a remaining element…
+	    i = Math.floor(Math.random() * m--);
+
+	    // And swap it with the current element.
+	    t = array[m];
+	    array[m] = array[i];
+	    array[i] = t;
+	  }
+
+	  return array;
+	}
 
 	$scope.connected = true; // Assume we are connected. If we aren't, any query to the server will force disconnection
 	$scope.userInfo = {};
@@ -354,7 +409,7 @@ angular.module('App.controllers', [])
 	};
 }])
 .controller('addQcmCtrl', ['$scope', '$http', '$window', '$routeParams', function($scope, $http, $window, $routeParams){
-	$scope.setPageInfo({name: 'Ajouter un questionnaire', back:"/listeChapitres/" + $routeParams.id});
+	$scope.setPageInfo({name: 'Ajouter un questionnaire', back: 'auto'});
 	$scope.chapitreId = $routeParams.id;
 	$scope.qcm = {};
 	$scope.send = function(qcm) {
@@ -368,7 +423,7 @@ angular.module('App.controllers', [])
 	$scope.setPageInfo({name: 'Editer un questionnaire', back:"/home"});
 
 	$http.get('api/getQcm/' + $routeParams.id).success(function(data) {
-		$scope.setPageInfo({name: 'Ajouter un questionnaire', back:"/listeChapitres/" + data._id});
+		$scope.setPageInfo({name: 'Ajouter un questionnaire', back:"/listeChapitres/" + data.coursId});
 		console.dir(data);
 		$scope.chapitreId = data._id;
 		$scope.qcm = data.qcm[0];
@@ -394,5 +449,85 @@ angular.module('App.controllers', [])
 	};
 	$scope.removeAnswer = function(question, id) {
 		question.answers.splice(id, 1);
+	};
+}])
+.controller('viewQcmCtrl', ['$scope', '$http', '$routeParams', '$location', function($scope, $http, $routeParams, $location){
+	$scope.previous = function() {
+		if($scope.position == 0 || $scope.showingResults)
+			return false;
+
+		$scope.position -= 1;
+		$scope.question = $scope.qcm.questions[$scope.position];
+		return true;
+	};
+
+	$scope.setPageInfo({name: 'Questionnaire', back:"/home/"});
+	$scope.question = {};
+	$scope.position = 0;
+
+	$http.get('api/getQcm/' + $routeParams.id).success(function(data) {
+		$scope.chapitreId = data._id;
+		$scope.qcm = data.qcm[0];
+		$scope.question = $scope.qcm.questions[0];
+
+		$scope.setPageInfo({name: $scope.qcm.name, back: $scope.previous, fallback:"/listeChapitres/" + data.coursId});
+	}).error($scope.isError);
+
+	$scope.next = function() {
+		if($scope.position == $scope.qcm.questions.length - 1)
+			return false;
+
+		$scope.position += 1;
+		$scope.question = $scope.qcm.questions[$scope.position];
+		return true;
+	};
+	$scope.selectAnswer = function(ans) {
+		$scope.question.userAnswer = ans;
+
+		if(!$scope.next())
+			$scope.endQcm();
+	};
+	$scope.endQcm = function() {
+		$http.post('api/addQcmResult/', $scope.getResults()).success(function(data) {
+			if(data._id !== undefined)
+				$location.path('/viewQcmResult/' + data._id);
+			else
+				$scope.isError(data);
+		}).error($scope.isError);
+	};
+	$scope.getAnswers = function(question) {
+		if(question.answers === undefined)
+			return [];
+
+		if(question.answersRandom === undefined){
+			question.answersRandom = $scope.shuffleArray(angular.copy(question.answers));
+		}
+		else
+			return question.answersRandom;
+	};
+	$scope.getResults = function() {
+		var res = { qcmId: $scope.qcm._id,correct: 0, incorrect: 0, questions: [] };
+		for (var i = $scope.qcm.questions.length - 1; i >= 0; i--) {
+			var question = $scope.qcm.questions[i];
+			res.questions[i] = {};
+
+			if(question.answers === undefined)
+				res.questions[i].answer = question.answer;
+			else
+				res.questions[i].answer = question.answers[0].value;
+
+			res.questions[i].given = question.userAnswer;
+
+			if(res.questions[i].answer.length === 1)
+				res.questions[i].correct = res.questions[i].given == res.questions[i].answer;
+			else
+				res.questions[i].correct = getEditDistance(res.questions[i].given.toLowerCase(), res.questions[i].answer.toLowerCase()) <= 1;
+
+			if(res.questions[i].correct)
+				res.correct++;
+			else
+				res.incorrect++;
+		};
+		return res;
 	};
 }])

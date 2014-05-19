@@ -33,24 +33,20 @@ function accessRights (lvl) {
 }
 function easyResSend(res) {
 	return (function(err, data) {
-			console.dir(data);
+		console.dir(data);
 		if(err){
 			res.send(500, err);
-			console.log('error');
+			console.log(err);
 		}
 		else if(Object.prototype.toString.call( data ) === '[object Array]'){ //It's an array
-			console.log('array')
 			if(data.length === 1){
 				res.send(200, data[0])
-				console.log('len 1')
 			}
 			else{
 				res.send(200, data);
-				console.log('len > 1')
 			}
 		}
 		else if (data === undefined){
-			console.log('no data')
 			res.send(200);
 		}
 		else if(typeof data === 'object'){
@@ -238,6 +234,11 @@ function startServer () {
 		.all(accessRights(3))
 		.get(function(req, res) {
 			dbm.removeQcm(+req.params.cid, +req.params.qid, easyResSend(res));
+		});
+	app.route('/api/addQcmResult/')
+		.all(accessRights(3))
+		.post(function(req, res) {
+			dbm.addQcmResult( +req.session.userid, req.body, easyResSend(res));
 		});
 
 	app.listen(80);

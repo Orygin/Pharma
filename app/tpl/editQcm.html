@@ -16,6 +16,7 @@
     <div ng-repeat="question in qcm.questions"
         class="listItemContentItem">
         Question: <input type="text" ng-model="question.name" class="form-control"/><br />
+        Explication: <input type="text" ng-model="question.explain" class="form-control"/><br />
         Type: <div class="btn-group">
             <label class="btn btn-default" ng-model="question.type" btn-radio="0" selected>Choix multiple</label>
             <label class="btn btn-default" ng-model="question.type" btn-radio="1">Réponse unique</label>

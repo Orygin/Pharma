@@ -1,0 +1,20 @@
+<div btf-markdown="question.name" class="qcmQuestion"></div>
+
+<div ng-show="question.type == 0">
+	<div class="btn-group">
+		<label ng-repeat="answer in getAnswers(question) track by $index" ng-click="selectAnswer(answer.value)" class="btn btn-default" ng-model="question.userAnswer" btn-radio="answer.value">
+			{{answer.value}}
+		</label>
+	</div>
+</div>
+<div ng-show="question.type == 1">
+	<div class="input-group qcmAnswer">
+		<input type="text" class="form-control" ng-model="question.userAnswer">
+		<span class="input-group-btn">
+			<button class="btn btn-default" type="button" 
+				ng-click="selectAnswer(question.userAnswer)">
+					<span class="glyphicon glyphicon-ok"></span>
+			</button>
+		</span>
+	</div>
+</div>

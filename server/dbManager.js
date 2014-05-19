@@ -67,7 +67,7 @@ module.exports = function (db) {
 		db.collection('cours').findAndModify({_id: +chapitre.coursId}, [['a', 1]], {$inc:{chapitreCount: 1}}, {}, function(){});
 	};
 	this.getQcm = function(id, cb) {
-		db.collection('chapitres').find({qcm: {$elemMatch: {_id: id}}}, {qcm: {$elemMatch: {_id: id} } }).toArray(cb);
+		db.collection('chapitres').find({qcm: {$elemMatch: {_id: id}}}, {coursId: 1, qcm: {$elemMatch: {_id: id} } }).toArray(cb);
 	};
 	this.addQcm = function(cid, data, cb) {
 		this.getNexSequence('qcm', function(count) {
@@ -80,5 +80,11 @@ module.exports = function (db) {
 	};
 	this.removeQcm = function(cid, qid, cb) {
 		db.collection('chapitres').update({_id: cid}, { $pull: { qcm: { _id: qid } } }, {w:1}, cb);
+	};
+	this.addQcmResult = function(uid, result, cb) {
+		this.getNexSequence('qcmResults', function(count) {
+			result._id = count;
+			db.collection('users').update({_id: uid}, {$push: { qcmResults: result}}, {w:1}, cb);
+		});
 	};
 };

@@ -33,28 +33,24 @@ function accessRights (lvl) {
 }
 function easyResSend(res) {
 	return (function(err, data) {
-		console.dir(data);
 		if(err){
 			res.send(500, err);
 			console.log(err);
 		}
 		else if(Object.prototype.toString.call( data ) === '[object Array]'){ //It's an array
-			if(data.length === 1){
+			if(data.length === 1){ // With only one element
 				res.send(200, data[0])
 			}
 			else{
 				res.send(200, data);
 			}
 		}
-		else if (data === undefined){
+		else if (data === undefined){ // Data is inexistant
 			res.send(200);
 		}
-		else if(typeof data === 'object'){
+		else{ // Data exist and will be sent
 			res.send(200, data);
-		}
-		else
-			res.send(200);
-		});
+		}});
 };
 function startServer () {
 	// Serve static files
@@ -240,6 +236,11 @@ function startServer () {
 		.post(function(req, res) {
 			dbm.addQcmResult( +req.session.userid, req.body, easyResSend(res));
 		});
+	app.route('/api/getQcmResult/:id')
+		.all(accessRights(3))
+		.get(function(req, res) {
+			dbm.getQcmResult(+req.params.id, easyResSend(res));
+		})
 
 	app.listen(80);
 	console.log('Listening on port 80');

@@ -15,6 +15,6 @@ config(['$routeProvider', function($routeProvider) {
 	$routeProvider.when('/addQcm/:id', {templateUrl: 'tpl/editQcm.html', controller: 'addQcmCtrl'});
 	$routeProvider.when('/editQcm/:id', {templateUrl: 'tpl/editQcm.html', controller: 'editQcmCtrl'});
 	$routeProvider.when('/viewQcm/:id', {templateUrl: 'tpl/viewQcm.html', controller: 'viewQcmCtrl'});
-	$routeProvider.when('/viewQcmResult/:id', {templateUrl: 'tpl/qcmResults.html', controller: 'viewQcmCtrl'});
+	$routeProvider.when('/viewQcmResult/:id', {templateUrl: 'tpl/qcmResults.html', controller: 'viewQcmResultCtrl'});
 	$routeProvider.otherwise({templateUrl:"tpl/home.html", controller: "homeCtrl"});
 }]);

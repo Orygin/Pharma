@@ -84,7 +84,12 @@ module.exports = function (db) {
 	this.addQcmResult = function(uid, result, cb) {
 		this.getNexSequence('qcmResults', function(count) {
 			result._id = count;
-			db.collection('users').update({_id: uid}, {$push: { qcmResults: result}}, {w:1}, cb);
+			db.collection('users').update({_id: uid}, {$push: { qcmResults: result}}, {w:1}, function(err, data) {
+				cb(err, {_id: count});
+			});
 		});
+	};
+	this.getQcmResult = function(id, cb) {
+		db.collection('users').find({qcmResults: {$elemMatch: {_id: id}}}, {qcmId: 1, qcmResults: {$elemMatch: {_id: id} } }).toArray(cb);
 	};
 };

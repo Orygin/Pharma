@@ -1,6 +1,6 @@
 <div class="listItem listItemHeader noCursor">
-	Resultats : 
-	<progress max="qcm.questions.length" class="qcmResultPBar">
+	Resultats :
+	<progress max="results.max" class="qcmResultPBar">
 		<bar value="results.correct" type="success">{{results.correct}}</bar>
 		<bar value="results.incorrect" type="danger">{{results.incorrect}}</bar>
 	</progress>
@@ -10,12 +10,12 @@
 		ng-click="res.active = !res.active"
 		ng-class="{listColorGreen: res.correct, listColorRed: !res.correct}">
 		Question {{$index + 1}} <br>
-		Réponse : {{res.answer}}, Votre réponse : {{res.given}}
+		Réponse : {{getAnswer(res.question)}}, Votre réponse : {{res.given}}
 	</div>
 	<div class="listItemContent"
 		ng-show="res.active">
 		<div class="listItemContentItem">
-		  	<div btf-markdown="res.explain"></div>
+		  	<div btf-markdown="res.question.explain"></div>
 		</div>
 	</div>
 </div>

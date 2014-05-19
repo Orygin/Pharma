@@ -518,10 +518,7 @@ angular.module('App.controllers', [])
 
 			res.questions[i].given = question.userAnswer;
 
-			if(res.questions[i].answer.length === 1)
-				res.questions[i].correct = res.questions[i].given == res.questions[i].answer;
-			else
-				res.questions[i].correct = getEditDistance(res.questions[i].given.toLowerCase(), res.questions[i].answer.toLowerCase()) <= 1;
+			res.questions[i].correct = res.questions[i].given.toLowerCase() == res.questions[i].answer.toLowerCase();
 
 			if(res.questions[i].correct)
 				res.correct++;
@@ -529,5 +526,29 @@ angular.module('App.controllers', [])
 				res.incorrect++;
 		};
 		return res;
+	};
+}])
+.controller('viewQcmResultCtrl', ['$scope', '$http', '$routeParams', function($scope, $http, $routeParams){
+	$scope.setPageInfo({name: 'Résultat de questionnaire', back:"auto"});
+
+	$http.get('api/getQcmResult/' + $routeParams.id ).success(function(result) {
+		$http.get('api/getQcm/' + result.qcmResults[0].qcmId).success(function(data) {
+			$scope.results = result.qcmResults[0];
+			$scope.chapitreId = data._id;
+			$scope.qcm = data.qcm[0];
+
+			for (var i = $scope.results.questions.length - 1; i >= 0; i--) {
+				$scope.results.questions[i].question = $scope.qcm.questions[i];
+			};
+
+			$scope.qcmId = $scope.results.qcmId;
+			$scope.results.max = $scope.results.correct + $scope.results.incorrect;
+		}).error($scope.isError)
+	}).error($scope.isError);
+	$scope.getAnswer = function(question) {
+		if(question.type === 0)
+			return question.answers[0].value;
+		else
+			return question.answer;
 	};
 }])
